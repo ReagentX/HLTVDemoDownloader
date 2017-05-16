@@ -66,6 +66,8 @@ def download(demoIDs):
     eventName = raw_input("What is the event name? ")
     directory = "./%s" % (eventName)
     os.mkdir(directory)
+    # Tell the user we are downloading the demo files
+    print "Now downloading demo files..."
     # Parse through the array of Demo IDs
     for i in range(0, len(demoIDs)):
         # Buidld the URL, same as above
@@ -85,6 +87,6 @@ def download(demoIDs):
 
 
 # Calls the method for a given Event ID.
-eventID = raw_input("What is the even ID? ")
+eventID = raw_input("What is the event ID? ")
 demoIDs = getIDs(eventID)
 download(demoIDs)
