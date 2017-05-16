@@ -1,4 +1,4 @@
-# HLTVDemoDownlaoder
+# HLTVDemoDownloader
 Downloads demo files from HLTV based on an event ID.
 
 This is written in pure python so it should run on any system that can run Python 2.7. Because it uses raw_input, it will not run directly from any editor that does not allow standard input (i.e., Atom) and must be run through a command line.    
