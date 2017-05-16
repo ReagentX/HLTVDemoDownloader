@@ -70,7 +70,7 @@ def download(demoIDs):
     print "Now downloading demo files..."
     # Parse through the array of Demo IDs
     for i in range(0, len(demoIDs)):
-        # Buidld the URL, same as above
+        # Build the URL, same as above
         url = "http://www.hltv.org/interfaces/download.php?demoid=%s" % (demoIDs[i])
         opener = urllib2.build_opener()
         opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
