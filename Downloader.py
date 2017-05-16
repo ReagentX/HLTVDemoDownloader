@@ -63,8 +63,8 @@ def download(demoIDs):
     # Create a counter varibale
     counter = 0
     # Make a folder for the files to be stored in.
-    # TODO use raw_input
-    directory = "./ECS Season 3 North America"
+    eventName = raw_input("What is the event name? ")
+    directory = "./%s" % (eventName)
     os.mkdir(directory)
     # Parse through the array of Demo IDs
     for i in range(0, len(demoIDs)):
@@ -85,7 +85,6 @@ def download(demoIDs):
 
 
 # Calls the method for a given Event ID.
-# TODO use raw_input
-
-demoIDs = getIDs(2729)
+eventID = raw_input("What is the even ID? ")
+demoIDs = getIDs(eventID)
 download(demoIDs)
