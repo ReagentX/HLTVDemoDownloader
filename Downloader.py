@@ -25,7 +25,7 @@ def getIDs(eventID):
         demoIDs[i] = demoIDs[i].replace('" href="?pageid=28&amp;&eventid=%s&offset=%s&amp;demoid=' % (eventid, offset), "")
     # If the length is = 25, offset by 25 and loop again
     if len(demoIDs) == 25:
-        # Set a boolean to cloe the while loop and a page variable we can increment when paginating
+        # Set a boolean to close the while loop and a page variable we can increment when paginating
         morePages = True
         page = 1
         # While check is true, offset by 25
