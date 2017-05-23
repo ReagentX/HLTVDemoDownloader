@@ -5,15 +5,11 @@ import os
 import datetime
 
 
-def getMatchIDs(eventID):
-    # Get the variable passed as an argument so it can be used
-    eventid = eventID
+def getMatchIDs(eventid):
     # Create an offset varibale for lists that are paginated on HLTV
     offset = 0
-    # Build the URL
-    url = 'https://www.hltv.org/results?offset=%s&event=%s' % (offset, eventid)
     # Get the HTML using getHTML()
-    html = getHTML(url)
+    html = getHTML('https://www.hltv.org/results?offset=%s&event=%s' % (offset, eventid))
     # Create an array of all of the Demo URLs on the page
     matchIDs = re.findall('"(.*?000"><a href="/matches/.*?)"', html)
     # Loops trhrough the messy array and removes the pesky parts
@@ -53,21 +49,18 @@ def getMatchIDs(eventID):
 
 
 def getDemoIDs(matchIDs):
-    # Get the variable passed as an argument so it can be used
-    matchIDs = matchIDs
     # Tell ths user what is happening
     print "Converting Match IDs to Demo IDs"
     # Define the array of Demo IDs
     demoIDs = []
     # Create an array for Match IDs with no Demo ID
     noDemos = []
-    # Create counter variable
+    # Create a variable to count the number of remaining Match IDs
     counter = 0
     # Loops through the array of Match IDs and gets the respective Demo IDs
     for i in range(0, len(matchIDs)):
         # Same URL building and opening as above
-        url = "https://www.hltv.org/matches/%s" % (matchIDs[i])
-        html = getHTML(url)
+        html = getHTML("https://www.hltv.org/matches/%s" % (matchIDs[i]))
         demoID = re.findall('"(/download/demo/.*?)"', html)
         # Check if re.findall()'s array is empty
         # If it has an element, add that Demo ID to the demoIDs array
@@ -89,8 +82,6 @@ def getDemoIDs(matchIDs):
 
 
 def download(demoIDs):
-    # Get the variable passed as an argument so it can be used
-    demoIDs = demoIDs
     # Tell the user how many demo files will be downloaded
     print "%s demo files to retrieve." % (len(demoIDs))
     # Create a counter varibale
@@ -105,20 +96,19 @@ def download(demoIDs):
     # Parse through the array of Demo IDs
     for i in range(0, len(demoIDs)):
         # Build and open the URL
-        url = "https://www.hltv.org/download/demo/%s" % (demoIDs[i])
         opener = urllib2.build_opener()
         opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
-        response = opener.open(url)
+        response = opener.open("https://www.hltv.org/download/demo/%s" % (demoIDs[i]))
         # HLTV redicrects to a .rar or .zip file
         finalurl = response.geturl()
         # Gets the filename (everything after the last trailing /)
         filename = finalurl.rsplit('/', 1)[-1]
-        # Gets the Content-Length from the metadata from finalurl
+        # Gets the Content-Length from the metadata from finalurl in bytes and convert to MB
         filesize = (int(urllib.urlopen(finalurl).info().getheaders("Content-Length")[0])/1024)/1024
         # Append the filesize to the array of filesizes
         filesizes.append(filesize)
         # Downloads the file to the directory the user enters
-        # TODO urllib.urlretrieve(finalurl, directory+"/"+filename)
+        urllib.urlretrieve(finalurl, directory+"/"+filename)
         counter += 1
         # Tell user the current status and file information
         print "%s demos remaining. Completed %s: %s MB." % (len(demoIDs)-counter, filename, filesize)
@@ -128,12 +118,14 @@ def download(demoIDs):
 
 def totalData(filesizes):
     filesizes = filesizes
-    # Create a variable to add to when looping
+    # Create a variable to add the filesizes to when looping
     data = 0
     for i in range(0, len(filesizes)):
         data += int(filesizes[i])
+    # If the data varibale is larger than 1 GB, divide it and store as a float
     if data > 1024:
         data = "%.2f GB" % (float(data) / 1024)
+    # If the data variable is smaller than 1 GB, do nothing
     else:
         data = "%s MB" % (data)
     return data
