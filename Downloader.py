@@ -109,8 +109,8 @@ def download(demoIDs):
     directory = "./%s" % (eventName)
     os.mkdir(directory)
 
-    # Create an array to calculate the total data transferred
-    filesizes = []
+    # Create a float to calculate the total data transferred
+    totalFilesize = 0.0
 
     # Parse through the array of Demo IDs
     for i in range(0, len(demoIDs)):
@@ -129,8 +129,8 @@ def download(demoIDs):
         # Gets the Content-Length from the metadata from finalurl
         filesize = (int(urllib.urlopen(finalurl).info().getheaders("Content-Length")[0])/1024)/1024
 
-        # Append the filesize to the array of filesizes
-        filesizes.append(filesize)
+        # Add the filesize to the total filesize
+        totalFilesize += filesize
 
         # Downloads the file to the directory the user enters
         urllib.urlretrieve(finalurl, directory+"/"+filename)
@@ -138,20 +138,15 @@ def download(demoIDs):
         # Tell user the current status and file information
         print "%s demos remaining. Completed %s: %s MB." % (len(demoIDs)-i-1, filename, filesize)
 
-    print "Total data transferred: %s. Enjoy!" % (totalData(filesizes))
+    print "Total data transferred: %s. Enjoy!" % (formatFilesize(totalFileSize))
     return True
 
 
-def totalData(filesizes):
-    # Create a variable to add to when looping
-    data = 0
-    for i in range(0, len(filesizes)):
-        data += int(filesizes[i])
-    if data > 1024:
-        data = "%.2f GB" % (float(data) / 1024)
+def formatFilesize(filesize):
+    if filesize > 1024:
+        return "%.2f GB" % (float(data) / 1024)
     else:
-        data = "%s MB" % (data)
-    return data
+        return "%s MB" % (data)
 
 
 def getHTML(url):
