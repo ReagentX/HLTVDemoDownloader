@@ -119,7 +119,7 @@ def download(demoIDs):
         urllib.urlretrieve(finalurl, directory+"/"+filename)
         counter += 1
         # Tell user the current status and file information
-        print "%s demos remaining. Starting %s: %s MB." % (len(demoIDs)-counter, filename, filesize)
+        print "%s demos remaining. Completed %s: %s MB." % (len(demoIDs)-counter, filename, filesize)
     print "Total data transferred: %s. Enjoy!" % (totalData(filesizes))
     return True
 
