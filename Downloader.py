@@ -2,6 +2,7 @@ import urllib2
 import urllib
 import re
 import os
+import datetime
 
 
 def getMatchIDs(eventID):
@@ -95,7 +96,8 @@ def download(demoIDs):
     # Create a counter varibale
     counter = 0
     # Make a folder for the files to be stored in.
-    eventName = raw_input("What is the event name? ")
+    # TODO eventName = raw_input("What is the event name? ")
+    eventName = "Test Event - %s" % (datetime.datetime.now().time())
     directory = "./%s" % (eventName)
     os.mkdir(directory)
     # Create an array to calculate the total data transferred
@@ -116,7 +118,7 @@ def download(demoIDs):
         # Append the filesize to the array of filesizes
         filesizes.append(filesize)
         # Downloads the file to the directory the user enters
-        urllib.urlretrieve(finalurl, directory+"/"+filename)
+        # TODO urllib.urlretrieve(finalurl, directory+"/"+filename)
         counter += 1
         # Tell user the current status and file information
         print "%s demos remaining. Completed %s: %s MB." % (len(demoIDs)-counter, filename, filesize)
@@ -176,7 +178,8 @@ def printErrors(errors):
 
 
 # Calls the method for a given Event ID.
-eventID = raw_input("What is the event ID? ")
+# TODO eventID = raw_input("What is the event ID? ")
+eventID = 2854
 matchIDs = getMatchIDs(eventID)
 demoIDs = getDemoIDs(matchIDs)
 download(demoIDs)
