@@ -94,9 +94,8 @@ def download(demoIDs):
     print "%s demo files to retrieve." % (len(demoIDs))
     # Create a counter varibale
     counter = 0
-    # TODO Make a folder for the files to be stored in.
-    eventName = "Test Event"
-    # eventName = raw_input("What is the event name? ")
+    # Make a folder for the files to be stored in.
+    eventName = raw_input("What is the event name? ")
     directory = "./%s" % (eventName)
     os.mkdir(directory)
     # Create an array to calculate the total data transferred
@@ -117,7 +116,7 @@ def download(demoIDs):
         # Append the filesize to the array of filesizes
         filesizes.append(filesize)
         # Downloads the file to the directory the user enters
-        # TODO urllib.urlretrieve(finalurl, directory+"/"+filename)
+        urllib.urlretrieve(finalurl, directory+"/"+filename)
         counter += 1
         # Tell user the current status and file information
         print "%s demos remaining. Starting %s: %s MB." % (len(demoIDs)-counter, filename, filesize)
@@ -177,8 +176,7 @@ def printErrors(errors):
 
 
 # Calls the method for a given Event ID.
-# TODO eventID = raw_input("What is the event ID? ")
-eventID = 2639
+eventID = raw_input("What is the event ID? ")
 matchIDs = getMatchIDs(eventID)
 demoIDs = getDemoIDs(matchIDs)
 download(demoIDs)
