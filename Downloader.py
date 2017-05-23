@@ -18,13 +18,9 @@ def getMatchIDs(eventID):
     # Loops trhrough the messy array and removes the pesky parts
     for i in range(0, len(matchIDs)):
         matchIDs[i] = matchIDs[i].split('/', 2)[-1]
-    # If the length is = 25, offset by 25 and loop again
-<<<<<<< HEAD
-    if len(demoIDs) == 25:
-=======
+    # If the length is = 50, offset by 50 and loop again
     if len(matchIDs) == 50:
         print "Parsed first page. Found %s IDs" % (len(matchIDs))
->>>>>>> tests
         # Set a boolean to close the while loop and a page variable we can increment when paginating
         morePages = True
         page = 1
