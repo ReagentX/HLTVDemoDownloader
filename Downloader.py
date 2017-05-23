@@ -172,17 +172,15 @@ def printErrors(errors):
     if len(errors) == 1:
         print "%s match has no demo:" % (len(errors))
 
-        # Loop through the array of matches with no demos.
+        # Print URLs for the matches with no demo file
         for i in range(0, len(errors)):
-            # Print URLs for the matches with no demo file
             print "%s: https://www.hltv.org/matches/%s" % (i+1, errors[i])
 
     elif len(errors) > 0:
         print "%s matches have no demo:" % (len(errors))
 
-        # Loop through the array of matches with no demos.
+        # Print URLs for the matches with no demo file
         for i in range(0, len(errors)):
-            # Print URLs for the matches with no demo file
             print "%s: https://www.hltv.org/matches/%s" % (i+1, errors[i])
     else:
         print "No errors found!"
