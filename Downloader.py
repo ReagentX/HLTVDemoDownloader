@@ -4,9 +4,7 @@ import re
 import os
 
 
-def getMatchIDs(eventID):
-    # Get the variable passed as an argument so it can be used
-    eventid = eventID
+def getMatchIDs(eventid):
     # Create an offset varibale for lists that are paginated on HLTV
     offset = 0
     # Build the URL
@@ -52,8 +50,6 @@ def getMatchIDs(eventID):
 
 
 def getDemoIDs(matchIDs):
-    # Get the variable passed as an argument so it can be used
-    matchIDs = matchIDs
     # Tell ths user what is happening
     print "Converting Match IDs to Demo IDs"
     # Define the array of Demo IDs
@@ -88,8 +84,6 @@ def getDemoIDs(matchIDs):
 
 
 def download(demoIDs):
-    # Get the variable passed as an argument so it can be used
-    demoIDs = demoIDs
     # Tell the user how many demo files will be downloaded
     print "%s demo files to retrieve." % (len(demoIDs))
     # Create a counter varibale
@@ -125,7 +119,6 @@ def download(demoIDs):
 
 
 def totalData(filesizes):
-    filesizes = filesizes
     # Create a variable to add to when looping
     data = 0
     for i in range(0, len(filesizes)):
@@ -138,8 +131,6 @@ def totalData(filesizes):
 
 
 def getHTML(url):
-    # Get the variable passed as an argument so it can be used
-    url = url
     # Open the URL
     opener = urllib2.build_opener()
     # Spoof the user agent
@@ -151,7 +142,6 @@ def getHTML(url):
 
 
 def printErrors(errors):
-    errors = errors
     if len(errors) == 1:
         print "%s match has no demo:" % (len(errors))
         # Reset counter varibale to count the errors
