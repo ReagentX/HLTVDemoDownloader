@@ -138,7 +138,7 @@ def download(demoIDs):
         # Tell user the current status and file information
         print "%s demos remaining. Completed %s: %s MB." % (len(demoIDs)-i-1, filename, filesize)
 
-    print "Total data transferred: %s. Enjoy!" % (formatFilesize(totalFileSize))
+    print "Total data transferred: %s. Enjoy!" % (formatFilesize(totalFilesize))
     return True
 
 
