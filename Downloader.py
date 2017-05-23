@@ -5,7 +5,7 @@ import os
 
 
 def getMatchIDs(eventid):
-    # Create an offset varibale for lists that are paginated on HLTV
+    # Create an offset variable for lists that are paginated on HLTV
     offset = 0
     # Build the URL
     url = 'https://www.hltv.org/results?offset=%s&event=%s' % (offset, eventid)
@@ -13,7 +13,7 @@ def getMatchIDs(eventid):
     html = getHTML(url)
     # Create an array of all of the Demo URLs on the page
     matchIDs = re.findall('"(.*?000"><a href="/matches/.*?)"', html)
-    # Loops trhrough the messy array and removes the pesky parts
+    # Loop through the messy array and removes the pesky parts
     for i in range(0, len(matchIDs)):
         matchIDs[i] = matchIDs[i].split('/', 2)[-1]
     # If the length is = 50, offset by 50 and loop again
@@ -33,7 +33,7 @@ def getMatchIDs(eventid):
                 moreMatchIDs[i] = moreMatchIDs[i].split('/', 2)[-1]
                 # Appends the new IDs to the master list
                 matchIDs.append(moreMatchIDs[i])
-            # Determine if there are additional page to be found, if not the while loop ends
+            # Determine if there are additional pages to be found, if not the while loop ends
             if len(moreMatchIDs) < 50:
                 morePages = False
                 page += 1
@@ -50,7 +50,7 @@ def getMatchIDs(eventid):
 
 
 def getDemoIDs(matchIDs):
-    # Tell ths user what is happening
+    # Tell the user what is happening
     print "Converting Match IDs to Demo IDs"
     # Define the array of Demo IDs
     demoIDs = []
@@ -144,7 +144,7 @@ def getHTML(url):
 def printErrors(errors):
     if len(errors) == 1:
         print "%s match has no demo:" % (len(errors))
-        # Reset counter varibale to count the errors
+        # Reset counter variable to count the errors
         counter = 1
         # Loop through the array of matches with no demos.
         for i in range(0, len(errors)):
@@ -153,7 +153,7 @@ def printErrors(errors):
             counter += 1
     elif len(errors) > 0:
         print "%s matches have no demo:" % (len(errors))
-        # Reset counter varibale to count the errors
+        # Reset counter variable to count the errors
         counter = 1
         # Loop through the array of matches with no demos.
         for i in range(0, len(errors)):
