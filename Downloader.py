@@ -61,8 +61,6 @@ def getDemoIDs(matchIDs):
     demoIDs = []
     # Create an array for Match IDs with no Demo ID
     noDemos = []
-    # Create counter variable
-    counter = 0
     # Loops through the array of Match IDs and gets the respective Demo IDs
     for i in range(0, len(matchIDs)):
         # Same URL building and opening as above
@@ -75,11 +73,9 @@ def getDemoIDs(matchIDs):
             demoIDs.append(demoID[0])
         # If there is no element, print which match has no demo
         elif len(demoID) < 1:
-            print "No demo found for %s (%s)" % (len(matchIDs)-counter, matchIDs[i].rsplit('/', 1)[-1])
+            print "No demo found for %s (%s)" % (len(matchIDs)-i, matchIDs[i].rsplit('/', 1)[-1])
             noDemos.append(matchIDs[i])
-        # Update counter and tell the user the conversion status is
-        counter += 1
-        print "%s remaining to convert." % (len(matchIDs)-counter)
+        print "%s remaining to convert." % (len(matchIDs)-i-1)
     # Loop through the demoIDs array and remove everything up to the last / to get the real Demo ID
     for i in range(0, len(demoIDs)):
         demoIDs[i] = demoIDs[i].rsplit('/', 1)[-1]
@@ -91,8 +87,6 @@ def getDemoIDs(matchIDs):
 def download(demoIDs):
     # Tell the user how many demo files will be downloaded
     print "%s demo files to retrieve." % (len(demoIDs))
-    # Create a counter varibale
-    counter = 0
     # Make a folder for the files to be stored in.
     eventName = raw_input("What is the event name? ")
     directory = "./%s" % (eventName)
@@ -116,9 +110,8 @@ def download(demoIDs):
         filesizes.append(filesize)
         # Downloads the file to the directory the user enters
         urllib.urlretrieve(finalurl, directory+"/"+filename)
-        counter += 1
         # Tell user the current status and file information
-        print "%s demos remaining. Completed %s: %s MB." % (len(demoIDs)-counter, filename, filesize)
+        print "%s demos remaining. Completed %s: %s MB." % (len(demoIDs)-i-1, filename, filesize)
     print "Total data transferred: %s. Enjoy!" % (totalData(filesizes))
     return True
 
@@ -149,22 +142,16 @@ def getHTML(url):
 def printErrors(errors):
     if len(errors) == 1:
         print "%s match has no demo:" % (len(errors))
-        # Reset counter variable to count the errors
-        counter = 1
         # Loop through the array of matches with no demos.
         for i in range(0, len(errors)):
             # Print URLs for the matches with no demo file
-            print "%s: https://www.hltv.org/matches/%s" % (counter, errors[i])
-            counter += 1
+            print "%s: https://www.hltv.org/matches/%s" % (i+1, errors[i])
     elif len(errors) > 0:
         print "%s matches have no demo:" % (len(errors))
-        # Reset counter variable to count the errors
-        counter = 1
         # Loop through the array of matches with no demos.
         for i in range(0, len(errors)):
             # Print URLs for the matches with no demo file
-            print "%s: https://www.hltv.org/matches/%s" % (counter, errors[i])
-            counter += 1
+            print "%s: https://www.hltv.org/matches/%s" % (i+1, errors[i])
     else:
         print "No errors found!"
     return True
