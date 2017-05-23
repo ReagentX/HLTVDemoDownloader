@@ -9,13 +9,10 @@ def getMatchIDs(eventid):
     offset = 0
     # Build the URL
     url = 'https://www.hltv.org/results?offset=%s&event=%s' % (offset, eventid)
-    # Get the HTML using getHTML()
-    html = getHTML(url)
+
     # Create an array of all of the Demo URLs on the page
-    matchIDs = re.findall('"(.*?000"><a href="/matches/.*?)"', html)
-    # Loop through the messy array and removes the pesky parts
-    for i in range(0, len(matchIDs)):
-        matchIDs[i] = matchIDs[i].split('/', 2)[-1]
+    matchIDs = findMatchIDsAtURL(url)
+
     # If the length is = 50, offset by 50 and loop again
     if len(matchIDs) == 50:
         print "Parsed first page. Found %s IDs" % (len(matchIDs))
@@ -27,12 +24,10 @@ def getMatchIDs(eventid):
             offset += 50
             # Same URL building and parsing as above
             url = 'https://www.hltv.org/results?offset=%s&event=%s' % (offset, eventid)
-            html = getHTML(url)
-            moreMatchIDs = re.findall('"(.*?000"><a href="/matches/.*?)"', html)
-            for i in range(0, len(moreMatchIDs)):
-                moreMatchIDs[i] = moreMatchIDs[i].split('/', 2)[-1]
-                # Appends the new IDs to the master list
-                matchIDs.append(moreMatchIDs[i])
+            moreMatchIDs = findMatchIDsAtURL(url)
+            for m in moreMatchIDs:
+                matchIDs.append(m)
+
             # Determine if there are additional pages to be found, if not the while loop ends
             if len(moreMatchIDs) < 50:
                 morePages = False
@@ -46,6 +41,16 @@ def getMatchIDs(eventid):
         print "Total demos: %s" % len(matchIDs)
     elif len(matchIDs) > 50:
         print "HLTV altered demo page layout :("
+    return matchIDs
+
+def findMatchIDsAtURL(url):
+    # Get the HTML using getHTML()
+    html = getHTML(url)
+    # Create an array of all of the Demo URLs on the page
+    matchIDs = re.findall('"(.*?000"><a href="/matches/.*?)"', html)
+    # Loop through the messy array and removes the pesky parts
+    for i in range(0, len(matchIDs)):
+        matchIDs[i] = matchIDs[i].split('/', 2)[-1]
     return matchIDs
 
 
