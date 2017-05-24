@@ -2,16 +2,17 @@ import urllib2
 import urllib
 import re
 import os
+import datetime
+from multiprocessing.dummy import Pool as ThreadPool
 
 
 def getMatchIDs(eventid):
     # Create an offset variable for lists that are paginated on HLTV
     offset = 0
     # Build the URL
-    url = 'https://www.hltv.org/results?offset=%s&event=%s' % (offset, eventid)
 
     # Create an array of all of the Demo URLs on the page
-    matchIDs = findMatchIDsAtURL(url)
+    matchIDs = findMatchIDsAtURL("https://www.hltv.org/results?offset=%s&event=%s" % (offset, eventid))
 
     # If the length is = 50, offset by 50 and loop again
     if len(matchIDs) == 50:
@@ -26,8 +27,7 @@ def getMatchIDs(eventid):
             offset += 50
 
             # Same URL building and parsing as above
-            url = 'https://www.hltv.org/results?offset=%s&event=%s' % (offset, eventid)
-            moreMatchIDs = findMatchIDsAtURL(url)
+            moreMatchIDs = findMatchIDsAtURL("https://www.hltv.org/results?offset=%s&event=%s" % (offset, eventid))
             for m in moreMatchIDs:
                 matchIDs.append(m)
 
@@ -47,6 +47,7 @@ def getMatchIDs(eventid):
         print "HLTV altered demo page layout :("
     return matchIDs
 
+
 def findMatchIDsAtURL(url):
     # Get the HTML using getHTML()
     html = getHTML(url)
@@ -61,92 +62,107 @@ def findMatchIDsAtURL(url):
     return matchIDs
 
 
-def getDemoIDs(matchIDs):
+def convertToDemoIDs(matchIDs, threads):
     # Tell the user what is happening
     print "Converting Match IDs to Demo IDs"
-
-    # Define the array of Demo IDs
-    demoIDs = []
-
-    # Create an array for Match IDs with no Demo ID
-    noDemos = []
-
-    # Loops through the array of Match IDs and gets the respective Demo IDs
-    for i in range(0, len(matchIDs)):
-        # Same URL building and opening as above
-        url = "https://www.hltv.org/matches/%s" % (matchIDs[i])
-        html = getHTML(url)
-        demoID = re.findall('"(/download/demo/.*?)"', html)
-
-        # Check if re.findall()'s array is empty
-        # If it has an element, add that Demo ID to the demoIDs array
-        if len(demoID) > 0:
-            demoIDs.append(demoID[0])
-
-        # If there is no element, print which match has no demo
-        elif len(demoID) < 1:
-            print "No demo found for %s (%s)" % (len(matchIDs)-i, matchIDs[i].rsplit('/', 1)[-1])
-            noDemos.append(matchIDs[i])
-
-        print "%s remaining to convert." % (len(matchIDs)-i-1)
-
-    # Loop through the demoIDs array and remove everything up to the last / to get the real Demo ID
-    for i in range(0, len(demoIDs)):
-        demoIDs[i] = demoIDs[i].rsplit('/', 1)[-1]
-
-    # If there are errors, print them
-    printErrors(noDemos)
-
+    pool = ThreadPool(threads)
+    demoIDs = pool.map(getDemoIDs, matchIDs)
+    errors = []
+    for text in demoIDs:
+        if " " in text:
+            errors.append(text[1:])
+            demoIDs.remove(text)
+    printErrors(errors)
     return demoIDs
 
 
-def download(demoIDs):
-    # Tell the user how many demo files will be downloaded
-    print "%s demo files to retrieve." % (len(demoIDs))
+def getDemoIDs(matchID):
+    # URL building and opening
+    url = "https://www.hltv.org/matches/%s" % (matchID)
+    html = getHTML(url)
+    demoID = re.findall('"(/download/demo/.*?)"', html)
+    # Check if re.findall()'s array is empty
+    # If it has an element, add that Demo ID to the demoIDs array
+    if len(demoID) > 0:
+        # Loop through the demoIDs array and remove everything up to the last / to get the real Demo ID
+        for i in range(0, len(demoID)):
+            demoID[i] = demoID[i].rsplit('/', 1)[-1]
+            print "Converted %s" % (matchID)
+            return demoID[0]
+    # If there is no element, print which match has no demo
+    elif len(demoID) < 1:
+        print "No demo found for %s" % (matchID)
+        return " %s" % matchID
 
-    # Make a folder for the files to be stored in.
-    eventName = raw_input("What is the event name? ")
-    directory = "./%s" % (eventName)
-    os.mkdir(directory)
+
+def download(demoIDs, threads):
+    # Convert the DemoIDs to URLs
+    urls = convertToURLs(demoIDs)
+    # Define the number of threads
+    pool = ThreadPool(threads)
+    directory = makeDir()
+    # Calls get() and adds the filesize returned each call to an array called filesizes
+    filesizes = pool.map(get, urls)
+    pool.close()
+    pool.join()
+    # Create a float to store the filesizes in and add them together
+    totalFileSize = 0.0
+    for i in range(0, len(filesizes)):
+        totalFileSize += filesizes[i]
+    # Print the properly formatted filesize.
+    print "Successfully transferred %s. Enjoy!" % (formatFilesize(totalFileSize))
+    return True
+
+
+def convertToURLs(demoIDs):
+    for i in range(0, len(demoIDs)):
+        demoIDs[i] = "https://www.hltv.org/download/demo/%s" % (demoIDs[i])
+    return demoIDs
+
+
+def get(url):
 
     # Create a float to calculate the total data transferred
-    totalFilesize = 0.0
 
     # Parse through the array of Demo IDs
-    for i in range(0, len(demoIDs)):
-        # Build and open the URL
-        url = "https://www.hltv.org/download/demo/%s" % (demoIDs[i])
-        opener = urllib2.build_opener()
-        opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
-        response = opener.open(url)
+    # Build and open the URL
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
+    response = opener.open(url)
 
-        # HLTV redicrects to a .rar or .zip file
-        finalurl = response.geturl()
+    # HLTV redicrects to a .rar or .zip file
+    finalurl = response.geturl()
 
-        # Gets the filename (everything after the last trailing /)
-        filename = finalurl.rsplit('/', 1)[-1]
+    # Gets the filename (everything after the last trailing /)
+    filename = finalurl.rsplit('/', 1)[-1]
 
-        # Gets the Content-Length from the metadata from finalurl
-        filesize = (int(urllib.urlopen(finalurl).info().getheaders("Content-Length")[0])/1024)/1024
+    # Gets the Content-Length from the metadata from finalurl
+    filesize = (int(urllib.urlopen(finalurl).info().getheaders("Content-Length")[0])/1024)/1024
 
-        # Add the filesize to the total filesize
-        totalFilesize += filesize
+    # Tell user we are downloading filesize
+    print "Starting %s: %s MB." % (filename, filesize)
 
-        # Downloads the file to the directory the user enters
-        urllib.urlretrieve(finalurl, directory+"/"+filename)
+    # Downloads the file to the directory the user enters
+    urllib.urlretrieve(finalurl, directory+"/"+filename)
 
-        # Tell user the current status and file information
-        print "%s demos remaining. Completed %s: %s MB." % (len(demoIDs)-i-1, filename, filesize)
+    # Tell user the current status and file information
+    print "Completed %s: %s MB." % (filename, filesize)
+    return filesize
 
-    print "Total data transferred: %s. Enjoy!" % (formatFilesize(totalFilesize))
-    return True
+
+def makeDir():
+    eventName = raw_input("What is the event name? ")
+    global directory
+    directory = "./%s" % (eventName)
+    os.mkdir(directory)
+    return directory
 
 
 def formatFilesize(filesize):
     if filesize > 1024:
-        return "%.2f GB" % (float(data) / 1024)
+        return "%.2f GB" % (float(filesize) / 1024)
     else:
-        return "%s MB" % (data)
+        return "%s MB" % (int(filesize))
 
 
 def getHTML(url):
@@ -184,6 +200,7 @@ def printErrors(errors):
 
 # Calls the method for a given Event ID.
 eventID = raw_input("What is the event ID? ")
+threads = 8
 matchIDs = getMatchIDs(eventID)
-demoIDs = getDemoIDs(matchIDs)
-download(demoIDs)
+demoIDs = convertToDemoIDs(matchIDs, threads)
+download(demoIDs, threads)
