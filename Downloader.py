@@ -2,6 +2,7 @@ import urllib2
 import urllib
 import re
 import os
+import multiprocessing
 from multiprocessing.dummy import Pool as ThreadPool
 
 
@@ -57,7 +58,6 @@ def findMatchIDsAtURL(url):
     # Loop through the messy array and removes the pesky parts
     for i in range(0, len(matchIDs)):
         matchIDs[i] = matchIDs[i].split('/', 2)[-1]
-
     return matchIDs
 
 
@@ -125,8 +125,8 @@ def download(demoIDs, threads):
 
     # Create a float to store the filesizes in and add them together
     totalFileSize = 0.0
-    for i in range(0, len(filesizes)):
-        totalFileSize += filesizes[i]
+    for f in filesizes:
+        totalFileSize = sum(filesizes)
 
     # Print the properly formatted filesize.
     print "Successfully transferred %s. Enjoy!" % (formatFilesize(totalFileSize))
@@ -134,9 +134,7 @@ def download(demoIDs, threads):
 
 
 def convertToURLs(demoIDs):
-    for i in range(0, len(demoIDs)):
-        demoIDs[i] = "https://www.hltv.org/download/demo/%s" % (demoIDs[i])
-    return demoIDs
+    return ["https://www.hltv.org/download/demo/%s" % demoID for demoID in demoIDs]
 
 
 def get(url):
@@ -200,17 +198,13 @@ def getHTML(url):
 
 
 def printErrors(errors):
+    # Print URL(s) for the match(es) with no demo file(s)
     if len(errors) == 1:
         print "%s match has no demo:" % (len(errors))
-
-        # Print URLs for the matches with no demo file
         for i in range(0, len(errors)):
             print "%s: https://www.hltv.org/matches/%s" % (i+1, errors[i])
-
     elif len(errors) > 0:
         print "%s matches have no demo:" % (len(errors))
-
-        # Print URLs for the matches with no demo file
         for i in range(0, len(errors)):
             print "%s: https://www.hltv.org/matches/%s" % (i+1, errors[i])
     else:
@@ -220,7 +214,7 @@ def printErrors(errors):
 
 # Calls the method for a given Event ID.
 eventID = raw_input("What is the event ID? ")
-threads = 8
+threads = multiprocessing.cpu_count()
 matchIDs = getMatchIDs(eventID)
 demoIDs = convertToDemoIDs(matchIDs, threads)
 download(demoIDs, threads)
