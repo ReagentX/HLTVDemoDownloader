@@ -65,13 +65,23 @@ def findMatchIDsAtURL(url):
 def convertToDemoIDs(matchIDs, threads):
     # Tell the user what is happening
     print "Converting Match IDs to Demo IDs"
+
+    # Define the number of threads
     pool = ThreadPool(threads)
+
+    # Calls getDemoIDs() and adds the value returned each call to an array called demoIDs
     demoIDs = pool.map(getDemoIDs, matchIDs)
+
+    # Create an array to add any captured errors to
     errors = []
+
+    # Find any errors, add them to the errors array, and remove them from demoIDs
     for text in demoIDs:
         if " " in text:
             errors.append(text[1:])
             demoIDs.remove(text)
+
+    # Print the errors (if there are any)
     printErrors(errors)
     return demoIDs
 
@@ -81,6 +91,7 @@ def getDemoIDs(matchID):
     url = "https://www.hltv.org/matches/%s" % (matchID)
     html = getHTML(url)
     demoID = re.findall('"(/download/demo/.*?)"', html)
+
     # Check if re.findall()'s array is empty
     # If it has an element, add that Demo ID to the demoIDs array
     if len(demoID) > 0:
@@ -88,27 +99,36 @@ def getDemoIDs(matchID):
         for i in range(0, len(demoID)):
             demoID[i] = demoID[i].rsplit('/', 1)[-1]
             print "Converted %s" % (matchID)
+            # Return the Demo ID
             return demoID[0]
+
     # If there is no element, print which match has no demo
     elif len(demoID) < 1:
         print "No demo found for %s" % (matchID)
+        # Return the Match ID with a space char so we can find it later
         return " %s" % matchID
 
 
 def download(demoIDs, threads):
     # Convert the DemoIDs to URLs
     urls = convertToURLs(demoIDs)
+
     # Define the number of threads
     pool = ThreadPool(threads)
+
+    # Make a folder for the event to save the files in
     directory = makeDir()
+
     # Calls get() and adds the filesize returned each call to an array called filesizes
     filesizes = pool.map(get, urls)
     pool.close()
     pool.join()
+
     # Create a float to store the filesizes in and add them together
     totalFileSize = 0.0
     for i in range(0, len(filesizes)):
         totalFileSize += filesizes[i]
+
     # Print the properly formatted filesize.
     print "Successfully transferred %s. Enjoy!" % (formatFilesize(totalFileSize))
     return True
@@ -121,10 +141,6 @@ def convertToURLs(demoIDs):
 
 
 def get(url):
-
-    # Create a float to calculate the total data transferred
-
-    # Parse through the array of Demo IDs
     # Build and open the URL
     opener = urllib2.build_opener()
     opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
@@ -151,11 +167,16 @@ def get(url):
 
 
 def makeDir():
+    # Ask the user what the event name is
     # TODO eventName = raw_input("What is the event name? ")
-    eventName = str(datetime.datetime.now().time())
+    eventName = datetime.datetime.time(datetime.datetime.now())
+
+    # Create a global variable so the different threads can access it
     global directory
     directory = "./%s" % (eventName)
     os.mkdir(directory)
+
+    # Return the string so we can use it
     return directory
 
 
@@ -201,7 +222,7 @@ def printErrors(errors):
 
 # Calls the method for a given Event ID.
 # TODO eventID = raw_input("What is the event ID? ")
-eventID = 2813
+eventID = 2471
 threads = 8
 matchIDs = getMatchIDs(eventID)
 demoIDs = convertToDemoIDs(matchIDs, threads)
