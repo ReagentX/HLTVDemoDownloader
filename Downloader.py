@@ -2,7 +2,11 @@ import urllib2
 import urllib
 import re
 import os
+<<<<<<< HEAD
 import datetime
+=======
+import multiprocessing
+>>>>>>> master
 from multiprocessing.dummy import Pool as ThreadPool
 
 
@@ -58,7 +62,10 @@ def findMatchIDsAtURL(url):
     # Loop through the messy array and removes the pesky parts
     for i in range(0, len(matchIDs)):
         matchIDs[i] = matchIDs[i].split('/', 2)[-1]
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     return matchIDs
 
 
@@ -83,6 +90,7 @@ def convertToDemoIDs(matchIDs, threads):
 
     # Print the errors (if there are any)
     printErrors(errors)
+<<<<<<< HEAD
     return demoIDs
 
 
@@ -140,6 +148,63 @@ def convertToURLs(demoIDs):
     return demoIDs
 
 
+=======
+    return demoIDs
+
+
+def getDemoIDs(matchID):
+    # URL building and opening
+    url = "https://www.hltv.org/matches/%s" % (matchID)
+    html = getHTML(url)
+    demoID = re.findall('"(/download/demo/.*?)"', html)
+
+    # Check if re.findall()'s array is empty
+    # If it has an element, add that Demo ID to the demoIDs array
+    if len(demoID) > 0:
+        # Loop through the demoIDs array and remove everything up to the last / to get the real Demo ID
+        for i in range(0, len(demoID)):
+            demoID[i] = demoID[i].rsplit('/', 1)[-1]
+            print "Converted %s" % (matchID)
+            # Return the Demo ID
+            return demoID[0]
+
+    # If there is no element, print which match has no demo
+    elif len(demoID) < 1:
+        print "No demo found for %s" % (matchID)
+        # Return the Match ID with a space char so we can find it later
+        return " %s" % matchID
+
+
+def download(demoIDs, threads):
+    # Convert the DemoIDs to URLs
+    urls = convertToURLs(demoIDs)
+
+    # Define the number of threads
+    pool = ThreadPool(threads)
+
+    # Make a folder for the event to save the files in
+    directory = makeDir()
+
+    # Calls get() and adds the filesize returned each call to an array called filesizes
+    filesizes = pool.map(get, urls)
+    pool.close()
+    pool.join()
+
+    # Create a float to store the filesizes in and add them together
+    totalFileSize = 0.0
+    for f in filesizes:
+        totalFileSize = sum(filesizes)
+
+    # Print the properly formatted filesize.
+    print "Successfully transferred %s. Enjoy!" % (formatFilesize(totalFileSize))
+    return True
+
+
+def convertToURLs(demoIDs):
+    return ["https://www.hltv.org/download/demo/%s" % demoID for demoID in demoIDs]
+
+
+>>>>>>> master
 def get(url):
     # Build and open the URL
     opener = urllib2.build_opener()
@@ -168,8 +233,12 @@ def get(url):
 
 def makeDir():
     # Ask the user what the event name is
+<<<<<<< HEAD
     # TODO eventName = raw_input("What is the event name? ")
     eventName = datetime.datetime.time(datetime.datetime.now())
+=======
+    eventName = raw_input("What is the event name? ")
+>>>>>>> master
 
     # Create a global variable so the different threads can access it
     global directory
@@ -202,6 +271,7 @@ def getHTML(url):
 
 
 def printErrors(errors):
+<<<<<<< HEAD
     if len(errors) == 1:
         print "%s match has no demo:" % (len(errors))
 
@@ -213,6 +283,15 @@ def printErrors(errors):
         print "%s matches have no demo:" % (len(errors))
 
         # Print URLs for the matches with no demo file
+=======
+    # Print URL(s) for the match(es) with no demo file(s)
+    if len(errors) == 1:
+        print "%s match has no demo:" % (len(errors))
+        for i in range(0, len(errors)):
+            print "%s: https://www.hltv.org/matches/%s" % (i+1, errors[i])
+    elif len(errors) > 0:
+        print "%s matches have no demo:" % (len(errors))
+>>>>>>> master
         for i in range(0, len(errors)):
             print "%s: https://www.hltv.org/matches/%s" % (i+1, errors[i])
     else:
@@ -221,9 +300,14 @@ def printErrors(errors):
 
 
 # Calls the method for a given Event ID.
+<<<<<<< HEAD
 # TODO eventID = raw_input("What is the event ID? ")
 eventID = 2471
 threads = 8
+=======
+eventID = raw_input("What is the event ID? ")
+threads = multiprocessing.cpu_count()
+>>>>>>> master
 matchIDs = getMatchIDs(eventID)
 demoIDs = convertToDemoIDs(matchIDs, threads)
 download(demoIDs, threads)
