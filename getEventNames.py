@@ -1,4 +1,4 @@
-import urllib2
+from urllib.request import Request, urlopen
 import re
 import multiprocessing
 from multiprocessing.dummy import Pool as ThreadPool
@@ -41,23 +41,20 @@ def getData(eventID):
         eventEndDate[0] = (eventEndDate[0].replace("class=\"standard-headline\">", "")).replace("<", "")
     else:
         eventEndDate.append(0)
-    print "%s,%s,%s,%s" % (eventType[0], eventNames[0], eventEndDate[0], eventID)
+    print("%s,%s,%s,%s" % (eventType[0], eventNames[0], eventEndDate[0], eventID))
     return "%s,%s,%s,%s" % (eventType[0], eventNames[0], eventEndDate[0], eventID)
 
 
 def getHTML(url):
     # Open the URL
-    opener = urllib2.build_opener()
-
     # Spoof the user agent
-    opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
-    response = opener.open(url)
-
+    request = Request(url)
+    request.add_header('User-Agent', 'Mozilla/5.0')
     # Read the response as HTML
-    html = response.read()
+    html = urlopen(request).read().decode('utf-8')
     return html
 
 
-eventIDs = list(xrange(2900))
+eventIDs = list(range(2884, 3000))
 threads = multiprocessing.cpu_count()
 processIDs(eventIDs, threads)
