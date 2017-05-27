@@ -18,6 +18,15 @@ def processIDs(eventIDs, threads):
 
 
 def getData(matchID):
+    # Set some vars for later
+    team1 = 0
+    team2 = 0
+    team1half1 = 0
+    team1half2 = 0
+    team2half1 = 0
+    team2half2 = 0
+    team1ot = 0
+    team2ot = 0
     html = getHTML("https://www.hltv.org/matches/%s" % (matchID))
     # Search variables data-unix="
     date = re.findall('data-unix=\".*\"', html)
@@ -25,11 +34,10 @@ def getData(matchID):
     teamNames = re.findall('class=\"logo\" title=\".*\">', html)
     map = re.findall('<div class=\"mapname\">.*</div>', html)
     scores = re.findall('<div class=\"results\"><span class=\".*</span><span>', html)
-    print(scores)
+
+    # Give up if no team names found
     if len(teamNames) < 1:
         return True
-    eventNames = re.findall('text-ellipsis\">.*<', html)
-    eventEndDate = re.findall('class="standard-headline">.*<', html)
 
     if len(date) > 0:
         date[0] = (date[0].replace("data-unix=\"", "")).replace("\"", "")[:-3]
@@ -46,18 +54,74 @@ def getData(matchID):
         teamIDs.append(0)
 
     # print map
-    if len(map) > 0:
+    if len(map) == 1:
         map[0] = (map[0].replace("<div class=\"mapname\">", "")).replace("</div>", "")
+    elif len(map) > 1:
+        for i in range(0, len(map)):
+            map[i] = (map[i].replace("<div class=\"mapname\">", "")).replace("</div>", "")
     else:
         map.append(0)
 
-    # print eventEndDate
-    if len(eventEndDate) > 0:
-        eventEndDate[0] = (eventEndDate[0].replace("class=\"standard-headline\">", "")).replace("<", "")
+    # print scores
+    sides = []
+    if len(scores) == 1:
+        if re.findall('\"t\"|\"ct\"', scores[0])[0] == '\"t\"':
+            sides.append("T")
+            sides.append("CT")
+        else:
+            sides.append("CT")
+            sides.append("T")
+    elif len(scores) > 1:
+        for i in range(0, len(scores)):
+            if re.findall('\"t\"|\"ct\"', scores[i])[0] == "\"t\"":
+                sides.append("T")
+                sides.append("CT")
+            else:
+                sides.append("CT")
+                sides.append("T")
     else:
-        eventEndDate.append(0)
-    print("%s,%s,%s,%s,%s" % (date[0], map[0], teamIDs[0], teamIDs[1], matchID))
-    return "%s,%s,%s" % (teamNames[0], teamNames[1], matchID)
+        return False
+
+    if len(map) == 1:
+        scores[0] = re.findall('\d+', scores[0])
+    elif len(map) > 1:
+        for i in range(0, len(scores)):
+            scores[i] = re.findall('\d+', scores[i])
+    else:
+        scores.append(0)
+
+    for i in range(0, len(scores)):
+        if len(scores[i]) == 6:
+            scores[i].append(0)
+            scores[i].append(0)
+            for set in range(0, len(scores[i])):
+                team1 = scores[i][0]
+                team2 = scores[i][1]
+                team1half1 = scores[i][2]
+                team1half2 = scores[i][3]
+                team2half1 = scores[i][4]
+                team2half2 = scores[i][5]
+                team1ot = scores[i][6]
+                team2ot = scores[i][7]
+        elif len(scores[i]) > 6:
+            for set in range(0, len(scores[i])):
+                team1 = scores[i][0]
+                team2 = scores[i][1]
+                team1half1 = scores[i][2]
+                team1half2 = scores[i][3]
+                team2half1 = scores[i][4]
+                team2half2 = scores[i][5]
+                team1ot = scores[i][6]
+                team2ot = scores[i][7]
+
+
+    # Handle printing
+    if len(map) > 1:
+        for i in range(0, len(scores)):
+            print("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (date[0], map[i], teamIDs[0], sides[0], scores[i][0], scores[i][2], scores[i][4], scores[i][6], teamIDs[1], sides[1], scores[i][1], scores[i][3], scores[i][5], scores[i][7], matchID))
+    else:
+        print("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (date[0], map[0], teamIDs[0], sides[0], scores[0][0], scores[0][2], scores[0][4], scores[0][6], teamIDs[1], sides[1], scores[0][1], scores[0][3], scores[0][5], scores[0][7], matchID))
+    return True
 
 
 def findMatchIDsAtURL(url):
@@ -89,8 +153,7 @@ with open('joinMatchEvent.csv', encoding='utf-8') as csvfile:
     for row in readCSV:
         eventIDs.append(row[0])
 
-getData("2311068/faze-vs-fnatic-ecs-season-3-europe")
-# eventIDs = list(range(2000,2500))
+# eventIDs = ["2292757/cloud9-vs-ibuypower-esea-invite-season-17-north-america"]
 # print(eventIDs)
 threads = multiprocessing.cpu_count()
-# processIDs(eventIDs, threads)
+processIDs(eventIDs, threads)
