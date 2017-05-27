@@ -55,6 +55,17 @@ def getHTML(url):
     return html
 
 
-eventIDs = list(range(1, 7948))
+removeIDs = []
+with open('teams.csv', encoding='utf-8') as csvfile:
+    readCSV = csv.reader(csvfile, delimiter=',')
+    for row in readCSV:
+        removeIDs.append(row[2])
+
+teamIDs = list(range(1, 7948))
+for i in range(1, len(removeIDs)):
+    if int(removeIDs[i]) in teamIDs:
+        teamIDs.remove(int(removeIDs[i]))
+
+
 threads = multiprocessing.cpu_count()
-processIDs(eventIDs, threads)
+processIDs(teamIDs, threads)

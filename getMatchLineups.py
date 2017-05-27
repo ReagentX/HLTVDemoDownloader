@@ -13,7 +13,7 @@ def processIDs(eventIDs, threads):
         pool = ThreadPool(threads)
 
         # Calls get() and adds the filesize returned each call to an array called filesizes
-        pool.map_async(getData, eventIDs)
+        pool.map(getData, eventIDs)
         pool.close()
         pool.join()
 
@@ -30,7 +30,9 @@ def getData(matchID):
     # print(playerIDs[0:5] + playerIDs[10:15])
 
     # Handle printing
-    print("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (playerIDs[0], playerIDs[1], playerIDs[2], playerIDs[3], playerIDs[4], playerIDs[10], playerIDs[11], playerIDs[12], playerIDs[13], playerIDs[14], matchID))
+    if len(playerIDs) > 15:
+        # print(matchID)
+        print("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (playerIDs[0], playerIDs[1], playerIDs[2], playerIDs[3], playerIDs[4], playerIDs[10], playerIDs[11], playerIDs[12], playerIDs[13], playerIDs[14], matchID))
     return True
 
 
@@ -58,7 +60,7 @@ def getHTML(url):
 
 
 def chunks(list, chunks):
-    """Yield successive n-sized chunks from l."""
+    # Yield successive chunks from list.
     for i in range(0, len(list), chunks):
         yield list[i:i + chunks]
 
@@ -69,8 +71,21 @@ with open('joinMatchEvent.csv', encoding='utf-8') as csvfile:
     for row in readCSV:
         eventIDs.append(row[0])
 
+print(len(eventIDs))
+removeIDs = []
+with open('matchLineups.csv', encoding='utf-8') as csvfile:
+    readCSV = csv.reader(csvfile, delimiter=',')
+    for row in readCSV:
+        removeIDs.append(row[10])
+
+for i in range(1, len(removeIDs)):
+    if removeIDs[i] in eventIDs:
+        eventIDs.remove((removeIDs[i]))
+
+print(len(eventIDs))
 # eventIDs = chunks(eventIDs, multiprocessing.cpu_count())
 # eventIDs = ["2188359/cph-wolves-vs-northern-dreamhack-winter-2012-danish-qual"]
 # print(eventIDs)
-threads = multiprocessing.cpu_count()
+# threads = multiprocessing.cpu_count()
+threads = 32
 processIDs(eventIDs, threads)
