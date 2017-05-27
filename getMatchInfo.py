@@ -4,6 +4,8 @@ import csv
 from datetime import datetime
 import multiprocessing
 from multiprocessing.dummy import Pool as ThreadPool
+from multiprocessing import Process, Queue
+
 
 
 def processIDs(eventIDs, threads):
@@ -12,10 +14,10 @@ def processIDs(eventIDs, threads):
         pool = ThreadPool(threads)
 
         # Calls get() and adds the filesize returned each call to an array called filesizes
-        pool.map(getData, eventIDs)
+        pool.map_async(getData, eventIDs)
         pool.close()
         pool.join()
-
+        print("Done!")
 
 def getData(matchID):
     # Set some vars for later
@@ -80,7 +82,7 @@ def getData(matchID):
                 sides.append("CT")
                 sides.append("T")
     else:
-        return False
+        return True
 
     if len(map) == 1:
         scores[0] = re.findall('\d+', scores[0])
@@ -113,6 +115,8 @@ def getData(matchID):
                 team2half2 = scores[i][5]
                 team1ot = scores[i][6]
                 team2ot = scores[i][7]
+        else:
+            return True
 
 
     # Handle printing
@@ -147,13 +151,20 @@ def getHTML(url):
     return html
 
 
+def chunks(list, chunks):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(list), chunks):
+        yield list[i:i + chunks]
+
+
 eventIDs = []
 with open('joinMatchEvent.csv', encoding='utf-8') as csvfile:
     readCSV = csv.reader(csvfile, delimiter=',')
     for row in readCSV:
         eventIDs.append(row[0])
 
-# eventIDs = ["2292757/cloud9-vs-ibuypower-esea-invite-season-17-north-america"]
+eventIDs = chunks(eventIDs, multiprocessing.cpu_count())
+# eventIDs = ["2188359/cph-wolves-vs-northern-dreamhack-winter-2012-danish-qual"]
 # print(eventIDs)
 threads = multiprocessing.cpu_count()
 processIDs(eventIDs, threads)

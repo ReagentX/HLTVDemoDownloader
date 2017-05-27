@@ -27,7 +27,7 @@ def getData(teamID):
     if len(teamCountry) < 1:
         teamCountry = re.findall('fa fa-map-marker\" aria-hidden=\"true\"></i>.*</div>', html)
     if len(teamCountry) < 1:
-        return False
+        return True
 
     # print teamName
     if len(teamName) > 0:
