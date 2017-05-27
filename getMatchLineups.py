@@ -27,12 +27,13 @@ def getData(matchID):
         return True
     for i in range(0, len(playerIDs)):
         playerIDs[i] = (playerIDs[i].split("/"))[2].split("/")[0]
+    # print(playerIDs)c
     # print(playerIDs[0:5] + playerIDs[10:15])
 
     # Handle printing
     if len(playerIDs) > 15:
         # print(matchID)
-        print("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (playerIDs[0], playerIDs[1], playerIDs[2], playerIDs[3], playerIDs[4], playerIDs[10], playerIDs[11], playerIDs[12], playerIDs[13], playerIDs[14], matchID))
+        print("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (playerIDs[0], playerIDs[1], playerIDs[2], playerIDs[3], playerIDs[4], playerIDs[5], playerIDs[6], playerIDs[7], playerIDs[8], playerIDs[9], matchID))
     return True
 
 
