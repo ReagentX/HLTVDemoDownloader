@@ -1,8 +1,7 @@
 from urllib.request import Request, urlopen
 import re
 import csv
-import string
-import random
+from datetime import datetime
 import multiprocessing
 from multiprocessing.dummy import Pool as ThreadPool
 
@@ -13,40 +12,37 @@ def processIDs(eventIDs, threads):
         pool = ThreadPool(threads)
 
         # Calls get() and adds the filesize returned each call to an array called filesizes
-        pool.map(getMatchIDs, eventIDs)
+        pool.map(getData, eventIDs)
         pool.close()
         pool.join()
 
 
-
-def getData(eventID):
-    html = getHTML("https://www.hltv.org/results?offset=0&event=%s" % (eventID))
+def getData(teamID):
+    html = getHTML("https://www.hltv.org/team/%s/a" % (teamID))
     # Find the type of event (online, LAN, etc)
-    eventType = re.findall(' <div class=\".*text-ellipsis\">', html)
-    if len(eventType) < 1:
+    teamName = re.findall('<div><span class=\"subjectname\">.*</span><br><i', html)
+    if len(teamName) < 1:
         return True
-    eventNames = re.findall('text-ellipsis\">.*<', html)
-    eventEndDate = re.findall('class="standard-headline">.*<', html)
+    teamCountry = re.findall('fa fa-map-marker\" aria-hidden=\"true\"></i>.*<', html)
+    if len(teamCountry) < 1:
+        teamCountry = re.findall('fa fa-map-marker\" aria-hidden=\"true\"></i>.*</div>', html)
+    if len(teamCountry) < 1:
+        return False
 
-    # print eventType
-    if len(eventType) > 0:
-        eventType[0] = (eventType[0].replace(" <div class=\"", "")).replace(" text-ellipsis\">", "")
+    # print teamName
+    if len(teamName) > 0:
+        teamName[0] = (teamName[0].replace("<div><span class=\"subjectname\">", "")).replace("</span><br><i", "")
     else:
-        eventType.append(0)
+        teamName.append(0)
 
-    # print eventNames
-    if len(eventNames) > 0:
-        eventNames[0] = (eventNames[0].replace("text-ellipsis\">", "")).replace("<", "")
+    # print teamCountry
+    if len(teamCountry) > 0:
+        teamCountry[0] = (teamCountry[0].replace("fa fa-map-marker\" aria-hidden=\"true\"></i> ", "")).split("<", 1)[0]
     else:
-        eventNames.append(0)
+        teamCountry.append(0)
 
-    # print eventEndDate
-    if len(eventEndDate) > 0:
-        eventEndDate[0] = (eventEndDate[0].replace("class=\"standard-headline\">", "")).replace("<", "")
-    else:
-        eventEndDate.append(0)
-    print("%s,%s,%s,%s" % (eventType[0], eventNames[0], eventEndDate[0], eventID))
-    return "%s,%s,%s,%s" % (eventType[0], eventNames[0], eventEndDate[0], eventID)
+    print("%s,%s,%s" % (teamName[0], teamCountry[0], teamID))
+    return "%s,%s,%s" % (teamName[0], teamCountry[0], teamID)
 
 
 def getHTML(url):
@@ -55,19 +51,10 @@ def getHTML(url):
     request = Request(url)
     request.add_header('User-Agent', 'Mozilla/5.0')
     # Read the response as HTML
-    html = urlopen(request).read().decode('utf-8')
+    html = urlopen(request).read().decode('ascii', 'ignore')
     return html
 
 
-eventIDs = []
-with open('eventData.csv', encoding='utf-8') as csvfile:
-    readCSV = csv.reader(csvfile, delimiter=',')
-    for row in readCSV:
-        eventIDs.append(row[3])
-    print(eventIDs)
-
-
-eventIDs = list(range(1,7948))
-# print(eventIDs)
+eventIDs = list(range(1, 7948))
 threads = multiprocessing.cpu_count()
 processIDs(eventIDs, threads)
