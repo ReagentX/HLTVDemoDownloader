@@ -67,7 +67,7 @@ def chunks(list, chunks):
 
 
 eventIDs = []
-with open('joinMatchEvent.csv', encoding='utf-8') as csvfile:
+with open('matchIDs.csv', encoding='utf-8') as csvfile:
     readCSV = csv.reader(csvfile, delimiter=',')
     for row in readCSV:
         eventIDs.append(row[0])

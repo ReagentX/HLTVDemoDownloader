@@ -8,13 +8,13 @@ from multiprocessing import Process, Queue
 
 
 
-def processIDs(eventIDs, threads):
+def processIDs(matchIDs, threads):
 
         # Define the number of threads
         pool = ThreadPool(threads)
 
         # Calls get() and adds the filesize returned each call to an array called filesizes
-        pool.map_async(getData, eventIDs)
+        pool.map_async(getData, matchIDs)
         pool.close()
         pool.join()
         print("Done!")
@@ -147,7 +147,7 @@ def getHTML(url):
     request = Request(url)
     request.add_header('User-Agent', 'Mozilla/5.0')
     # Read the response as HTML
-    html = urlopen(request).read().decode('utf-8')
+    html = urlopen(request).read().decode('ascii', 'ignore')
     return html
 
 
@@ -158,13 +158,26 @@ def chunks(list, chunks):
 
 
 eventIDs = []
-with open('joinMatchEvent.csv', encoding='utf-8') as csvfile:
+with open('matchIDs.csv', encoding='utf-8') as csvfile:
     readCSV = csv.reader(csvfile, delimiter=',')
     for row in readCSV:
         eventIDs.append(row[0])
 
-eventIDs = chunks(eventIDs, multiprocessing.cpu_count())
-# eventIDs = ["2188359/cph-wolves-vs-northern-dreamhack-winter-2012-danish-qual"]
+removeIDs = []
+with open('matches.csv', encoding='utf-8') as csvfile:
+    readCSV = csv.reader(csvfile, delimiter=',')
+    for row in readCSV:
+        removeIDs.append(row[14])
+
+
+print(len(eventIDs))
+for i in range(1, len(removeIDs)):
+    if removeIDs[i] in eventIDs:
+        eventIDs.remove(removeIDs[i])
+print(len(eventIDs))
+
+# eventIDs = ["2311209/teamone-vs-keyd-stars-liga-pro-alienware-gamersclub-4"]
 # print(eventIDs)
-threads = multiprocessing.cpu_count()
+# threads = multiprocessing.cpu_count()
+threads = 32
 processIDs(eventIDs, threads)
