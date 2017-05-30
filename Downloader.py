@@ -166,8 +166,8 @@ def get(url):
 
 def makeDir():
     # Ask the user what the event name is
-    # TODO eventName = raw_input("What is the event name? ")
-    eventName = datetime.datetime.now().time()
+    eventName = raw_input("What is the event name? ")
+    # eventName = datetime.datetime.now().time()
 
     # Create a global variable so the different threads can access it
     global directory
@@ -214,10 +214,8 @@ def printErrors(errors):
 
 
 # Calls the method for a given Event ID.
-# TODO eventID = raw_input("What is the event ID? ")
-eventID = 2334
+eventID = raw_input("What is the event ID? ")
 threads = multiprocessing.cpu_count()
 matchIDs = getMatchIDs(eventID)
-# eventName = getData(eventID)
 demoIDs = convertToDemoIDs(matchIDs, threads)
 download(demoIDs, threads)
