@@ -2,6 +2,7 @@ import urllib2
 import urllib
 import re
 import os
+import datetime
 import multiprocessing
 from multiprocessing.dummy import Pool as ThreadPool
 
@@ -165,7 +166,8 @@ def get(url):
 
 def makeDir():
     # Ask the user what the event name is
-    eventName = raw_input("What is the event name? ")
+    # TODO eventName = raw_input("What is the event name? ")
+    eventName = datetime.datetime.now().time()
 
     # Create a global variable so the different threads can access it
     global directory
@@ -193,7 +195,6 @@ def getHTML(url):
 
     # Read the response as HTML
     html = response.read()
-
     return html
 
 
@@ -213,8 +214,10 @@ def printErrors(errors):
 
 
 # Calls the method for a given Event ID.
-eventID = raw_input("What is the event ID? ")
+# TODO eventID = raw_input("What is the event ID? ")
+eventID = 2334
 threads = multiprocessing.cpu_count()
 matchIDs = getMatchIDs(eventID)
+# eventName = getData(eventID)
 demoIDs = convertToDemoIDs(matchIDs, threads)
 download(demoIDs, threads)
