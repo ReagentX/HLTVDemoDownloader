@@ -1,10 +1,8 @@
+from multiprocessing.dummy import Pool as ThreadPool
 import urllib2
 import urllib
 import re
 import os
-import datetime
-import multiprocessing
-from multiprocessing.dummy import Pool as ThreadPool
 
 
 def getMatchIDs(eventid):
@@ -71,6 +69,8 @@ def convertToDemoIDs(matchIDs, threads):
 
     # Calls getDemoIDs() and adds the value returned each call to an array called demoIDs
     demoIDs = pool.map(getDemoIDs, matchIDs)
+    pool.close()
+    pool.join()
 
     # Create an array to add any captured errors to
     errors = []
@@ -215,7 +215,7 @@ def printErrors(errors):
 
 # Calls the method for a given Event ID.
 eventID = raw_input("What is the event ID? ")
-threads = multiprocessing.cpu_count()
+threads = 32
 matchIDs = getMatchIDs(eventID)
 demoIDs = convertToDemoIDs(matchIDs, threads)
 download(demoIDs, threads)
