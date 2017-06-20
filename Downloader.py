@@ -54,11 +54,11 @@ def findMatchIDsAtURL(url):
     html = getHTML(url)
 
     # Create an array of all of the Demo URLs on the page
-    matchIDs = re.findall('"(.*?000"><a href="/matches/.*?)"', html)
+    matchIDs = re.findall('<div class="result-con"><a href=\"/matches/.*?\"', html)
 
     # Loop through the messy array and removes the pesky parts
     for i in range(0, len(matchIDs)):
-        matchIDs[i] = matchIDs[i].split('/', 2)[-1]
+        matchIDs[i] = (matchIDs[i].split('/', 2)[-1]).replace("\"", "")
     return matchIDs
 
 
