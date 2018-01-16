@@ -73,10 +73,10 @@ def convert_to_demo_ids(match_ids, threads):
     errors = []
 
     # Find any errors, add them to the errors array, and remove them from demo_ids
-    for text in demo_ids:
-        if " " in text:
-            errors.append(text[1:])
-            demo_ids.remove(text)
+    for demo_id in demo_ids:
+        if "/" in demo_id:
+            errors.append(demo_id)
+    demo_ids = [x for x in demo_ids if x not in errors]
 
     # Print the errors (if there are any)
     print_errors(errors)
@@ -87,14 +87,13 @@ def get_demo_ids(match_id):
     # URL building and opening
     url = "https://www.hltv.org/matches/%s" % (match_id)
     html = get_html(url)
-    demo_id = re.findall('"(/download/demo/.*?)"', html)
+    demo_id = re.findall('"/download/demo/(.*?)"', html)
 
     # Check if re.findall()'s array is empty
     # If it has an element, add that Demo ID to the demo_ids array
     if len(demo_id) > 0:
         # Loop through the demo_ids array and remove everything up to the last / to get the real Demo ID
         for i in range(0, len(demo_id)):
-            demo_id[i] = demo_id[i].rsplit('/', 1)[-1]
             print "Converted %s" % (match_id)
             # Return the Demo ID
             return demo_id[0]
@@ -130,6 +129,7 @@ def download(demo_ids, threads):
 
 
 def convert_to_urls(demo_ids):
+    print demo_ids
     return ["https://www.hltv.org/download/demo/%s" % demo_id for demo_id in demo_ids]
 
 
@@ -209,7 +209,7 @@ def print_errors(errors):
 
 # Calls the method for a given Event ID.
 event_id = raw_input("What is the event ID? ")
-processes = 32
+processes = 8
 match_ids = get_match_ids(event_id)
 demo_ids = convert_to_demo_ids(match_ids, processes)
 download(demo_ids, processes)
