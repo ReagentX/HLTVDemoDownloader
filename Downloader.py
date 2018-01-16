@@ -105,7 +105,8 @@ def get_demo_ids(match_id):
         return " %s" % match_id
 
 
-def download(demo_ids, threads):
+def download(demo_ids, 1):
+    # Temporarily use one due to 503 errors
     # Convert the DemoIDs to URLs
     urls = convert_to_urls(demo_ids)
 
