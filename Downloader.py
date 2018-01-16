@@ -105,8 +105,8 @@ def get_demo_ids(match_id):
         return " %s" % match_id
 
 
-def download(demo_ids, 1):
-    # Temporarily use one due to 503 errors
+def download(demo_ids, threads=1):
+    # Temporarily use 1 due to 503 errors
     # Convert the DemoIDs to URLs
     urls = convert_to_urls(demo_ids)
 
@@ -213,4 +213,4 @@ event_id = raw_input("What is the event ID? ")
 processes = 8
 match_ids = get_match_ids(event_id)
 demo_ids = convert_to_demo_ids(match_ids, processes)
-download(demo_ids, processes)
+download(demo_ids)
