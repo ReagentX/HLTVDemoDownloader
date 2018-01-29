@@ -130,7 +130,6 @@ def download(demo_ids, threads=1):
 
 
 def convert_to_urls(demo_ids):
-    print demo_ids
     return ["https://www.hltv.org/download/demo/%s" % demo_id for demo_id in demo_ids]
 
 
